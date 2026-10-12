@@ -1,0 +1,32 @@
+[Unit]
+Description=Cloudflare dynamic DNS updater
+Documentation=https://developers.cloudflare.com/api/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/cfdyndns/cfdyndns.env
+ExecStart=/usr/local/bin/cfdyndns
+Restart=on-failure
+RestartSec=30
+
+# Hardening: runs as a throwaway user with no write access to the system.
+DynamicUser=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target
