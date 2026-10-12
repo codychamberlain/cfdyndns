@@ -1,3 +1,3 @@
-module github.com/cody/cfdyndns
+module github.com/codychamberlain/cfdyndns
 
 go 1.27.2
