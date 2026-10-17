@@ -55,3 +55,7 @@ To update both IPv4 and IPv6 records, run two instances with different env files
 ```sh
 sudo make uninstall
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE).

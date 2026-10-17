@@ -162,7 +162,12 @@ func fetchIP(ctx context.Context, client *http.Client, src string) (netip.Addr, 
 	if err != nil {
 		return netip.Addr{}, fmt.Errorf("unparseable response %q", text)
 	}
-	return ip.Unmap(), nil
+	// Never publish loopback, link-local, private or other non-routable addresses.
+	ip = ip.Unmap()
+	if !ip.IsGlobalUnicast() || ip.IsPrivate() {
+		return netip.Addr{}, fmt.Errorf("%s is not a public address", ip)
+	}
+	return ip, nil
 }
 
 // ---- Cloudflare API ----
@@ -212,7 +217,7 @@ func (c *cfClient) do(ctx context.Context, method, path string, body, out any) e
 	defer resp.Body.Close()
 
 	var cr cfResponse
-	if err := json.NewDecoder(resp.Body).Decode(&cr); err != nil {
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&cr); err != nil {
 		return fmt.Errorf("%s %s: HTTP %d, bad response: %w", method, path, resp.StatusCode, err)
 	}
 	if !cr.Success {
